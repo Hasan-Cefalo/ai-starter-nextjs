@@ -1,0 +1,10 @@
+.aiassistant
+.github
+.junie
+.aiignore
+gitops
+manifests
+.dockerignore
+Dockerfile
+CLAUDE.md
+VERSION
