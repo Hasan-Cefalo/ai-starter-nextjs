@@ -18,4 +18,4 @@ questions before writing the plan. If you do so, incorporate the user's answers 
 Prioritize being concise and precise. Make the plan as tight as possible without losing any of the critical details from
 the user's requirements.
 
-Write the plan into an .ai/plans/<N>_plan_<plan_name>.md file with N being the next available feature number (starting with 0001) and plan_name being a short description of the feature or the task being performed.
+Write the plan into an .ai/generated-plans/<N>_plan_<plan_name>.md file with N being the next available feature number (starting with 0001) and plan_name being a short description of the feature or the task being performed.
