@@ -1,140 +1,604 @@
-# Project Guidelines (ai-starter-nextjs)
+# Project Guidelines
 
-This repository is an AI-assisted Next.js starter. At the time of writing, the repo is intentionally minimal and may not yet include a full Next.js app scaffold (no package.json). The guidelines below define the canonical setup, build, and testing flows for contributors and CI, and reference the existing rules in `.aiassistant/rules/`.
+**Project**: ai-starter-nextjs
+**Type**: Next.js 14+ starter template with AI-assisted development workflow
+**Last Updated**: 2025-11-21
+**Status**: Minimal scaffold - full app initialization pending
 
-These instructions have been verified where possible in this environment by executing a minimal sanity test using Node.js. When the full app is scaffolded, follow the same patterns at a project scale.
+> This is an AI-assisted Next.js starter project. The repository is currently minimal and will be scaffolded following these guidelines. All rules reference existing standards in `.aiassistant/rules/`.
 
-— Last verified: 2025-11-21 21:44
+---
 
-1. Build and Configuration
-   1.1 Prerequisites
+## Quick Reference
 
-- Node.js: 18.20.x or 20.x (LTS recommended).
-- Package manager: pnpm (preferred) or npm.
-- OS: macOS/Linux/WSL2.
+```bash
+# Setup (when scaffolding)
+pnpm dlx create-next-app@latest .
 
-1.2 Initializing the project (when scaffolding the app)
+# Development
+pnpm install          # Install dependencies
+pnpm dev             # Start dev server
+pnpm typecheck       # Type checking
+pnpm lint            # Lint code
+pnpm test            # Run tests
+pnpm test:watch      # Test watch mode
+pnpm build           # Production build
+pnpm start           # Start production server
+```
 
-- If the repository does not yet contain a Next.js app:
-  - pnpm dlx create-next-app@latest .
-    - Choose TypeScript, App Router, ESLint, and Tailwind (optional) per team standards.
-  - Alternatively, create a new app in a subfolder (e.g., apps/web) if adopting a monorepo layout.
-- Ensure TypeScript strict mode is enabled in tsconfig.json: "strict": true.
-- Configure path aliases via compilerOptions.paths if the project is multi-package.
+---
 
-1.3 Environment configuration
+## 1. Technology Stack
 
-- Use .env.local for developer-only secrets; never commit it.
-- Next.js runtime variables:
-  - Public: NEXT_PUBLIC_* keys are exposed to the browser.
-  - Server-only: non-prefixed keys available only on the server.
-- Production secrets should be injected via the platform (e.g., Vercel, GitHub Actions secrets).
+### Core
+- **Framework**: Next.js 14+ (App Router)
+- **Language**: TypeScript 5+ (strict mode)
+- **Runtime**: Node.js 18.20.x or 20.x LTS
+- **Package Manager**: pnpm (preferred) or npm
 
-1.4 Build commands (after app is scaffolded)
+### UI & Styling
+- **Component Library**: Material UI
+- **CSS Framework**: TailwindCSS
+- **Styling Approach**: CSS-in-JS, CSS Variables for theming
+- **Design System**: Mobile-first, responsive, light/dark mode
 
-- Install deps: pnpm install
-- Type-check: pnpm typecheck (configure script: "typecheck": "tsc --noEmit")
-- Lint: pnpm lint (ESLint with Next.js config + custom rules)
-- Dev: pnpm dev
-- Build: pnpm build
-- Start (production): pnpm start
+### State Management
+- **Global State**: Redux Toolkit with `createSlice`
+- **Local State**: React Hooks (`useState`, `useReducer`, `useContext`)
+- **Server State**: React Query (optional, for data fetching)
 
-2. Testing
-   2.1 Tooling
+### Forms & Validation
+- **Form Management**: React Hook Form
+- **Schema Validation**: Zod
+- **Sanitization**: DOMPurify (XSS prevention)
 
-- Unit tests: Vitest
-- React component tests: @testing-library/react + @testing-library/jest-dom
-- Coverage: c8 (integrates with Vitest)
+### Testing
+- **Test Runner**: Vitest
+- **Component Testing**: React Testing Library + @testing-library/jest-dom
+- **Coverage**: c8 (Vitest integration)
+- **E2E** (optional): Playwright
 
-2.2 Setup (after app is scaffolded)
+---
 
-- Install test deps:
-  - pnpm add -D vitest @testing-library/react @testing-library/jest-dom jsdom c8
-- Add scripts to package.json:
-  - "test": "vitest",
-  - "test:watch": "vitest --watch",
-  - "test:ui": "vitest --ui",
-  - "test:coverage": "vitest run --coverage"
-- Configure Vitest in vitest.config.ts with test environment jsdom for component tests:
-  - test: { environment: 'jsdom', setupFiles: ['./test/setup.ts'] }
-- In test/setup.ts:
-  - import '@testing-library/jest-dom'
+## 2. Project Structure
 
-2.3 Directory and naming conventions
+```
+ai-starter-nextjs/
+├── .aiassistant/          # JetBrains AI rules
+│   └── rules/            # Detailed coding standards
+├── .cursor/              # Cursor IDE config
+├── .junie/               # Junie AI guidelines (this file)
+├── app/                  # Next.js App Router
+│   ├── (marketing)/     # Route groups
+│   ├── (dashboard)/
+│   ├── api/             # API routes
+│   ├── layout.tsx       # Root layout
+│   ├── page.tsx         # Home page
+│   ├── error.tsx        # Error boundary
+│   └── not-found.tsx    # 404 page
+├── components/           # Reusable UI components
+│   ├── ui/              # Base UI primitives
+│   └── shared/          # Shared components
+├── hooks/                # Custom React hooks
+├── lib/                  # Utility functions
+├── store/                # Redux store
+│   ├── slices/          # Redux slices
+│   └── index.ts         # Store configuration
+├── types/                # TypeScript definitions
+├── public/               # Static assets
+├── tests/                # Global test utilities
+│   └── setup.ts         # Test setup
+├── .env.local           # Local environment (not committed)
+└── vitest.config.ts     # Vitest configuration
+```
 
-- Place unit tests alongside source files as *.test.ts or *.spec.ts.
-- For shared utilities, you may group tests under tests/ at the repo root in small projects.
+---
 
-2.4 Running tests
+## 3. File Naming Conventions
 
-- Full run: pnpm test
-- Watch mode during development: pnpm test:watch
-- Coverage: pnpm test:coverage
+| Type | Convention | Example |
+|------|------------|---------|
+| Components | kebab-case.tsx | `user-profile.tsx` |
+| Pages | kebab-case.tsx | `dashboard.tsx` |
+| Directories | kebab-case | `auth-wizard/` |
+| Hooks | camelCase (use*) | `useAuth.ts` |
+| Utils | kebab-case.ts | `format-date.ts` |
+| Types | PascalCase | `UserProfile` |
+| Constants | UPPER_CASE | `API_BASE_URL` |
 
-2.5 Demonstration (verified in this environment)
+**Exports**: Components in PascalCase, functions in camelCase
 
-- Because this repo currently lacks a JS toolchain, we verified the execution path by running a minimal Node.js test script. When the app is in place, the same approach applies using Vitest.
-- Example that was executed successfully here:
-  - node temp_sanity_test.cjs (see process below; the file is ephemeral and not committed)
+```typescript
+// user-profile.tsx
+export function UserProfile() { /* ... */ }
 
-3. Additional Development Information
-   3.1 Code style and conventions
+// format-date.ts
+export function formatDate(date: Date) { /* ... */ }
+```
 
-- Follow the rules captured in:
-  - .aiassistant/rules/code-style.md (indentation, quotes, semicolons policy, naming, React/Next best practices, TypeScript strictness, etc.)
-  - .aiassistant/rules/inclusive-design.md
-  - .aiassistant/rules/security.md
-  - .aiassistant/rules/testing.md
-  - .aiassistant/rules/documentation.md
-- Align with these specifics for this project:
-  - TypeScript everywhere; enable strict mode.
-  - Functional React components (Server Components by default with Next.js App Router). Use 'use client' only when necessary (event handlers, browser APIs, local state-heavy components).
-  - Prefer feature-based folder structure (e.g., app/(marketing), app/(dashboard), components/, lib/, hooks/).
-  - Keep components small and composable; extract shared logic into hooks under hooks/.
-  - Use Next.js Image and Link components appropriately.
-  - Avoid inline functions in JSX where possible; memoize with useCallback/useMemo when beneficial.
+---
 
-3.2 Linting and formatting
+## 4. Code Style Standards
 
-- ESLint: extend next/core-web-vitals and add project rules from code-style.md.
-- Prettier: configure for 2-space indent, single quotes, 80-char guideline, trailing commas.
-- Consider lint-staged + simple-git-hooks or husky to run lint/typecheck on pre-commit.
+### TypeScript
 
-3.3 Security and secrets
+**Always use strict mode**:
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true
+  }
+}
+```
 
-- Never commit secrets. Use environment injection in CI/CD.
-- Review .aiassistant/rules/security.md before introducing new dependencies.
-- For auth, plan to integrate a mature provider (NextAuth.js, Auth.js) and use middleware for route protection.
+**Interfaces over types for objects**:
+```typescript
+// ✅ Good
+interface UserProps {
+  name: string
+  age: number
+}
 
-3.4 Observability and error handling
+// ❌ Avoid for objects
+type UserProps = {
+  name: string
+  age: number
+}
+```
 
-- Add error boundaries for client components; leverage Next.js error.tsx and not-found.tsx.
-- Consider Sentry for error monitoring; wrap server actions and critical client code with logging.
+**Use type guards for safety**:
+```typescript
+function processUser(user: User | null) {
+  if (!user) return null
+  return user.name
+}
+```
 
-4. Minimal Verified Test Example (what we ran here)
+### React Components
 
-- To prove test execution works in this environment without adding persistent dependencies, we used Node's built-in assert to run an ephemeral sanity test. The file was created, executed, and deleted, matching the process described in 2.5.
-- Reproduce locally if needed:
-  - Create a temp file temp_sanity_test.cjs with:
-    - const assert = require('node:assert')
-    - function sum (a, b) { return a + b }
-    - assert.strictEqual(sum(2, 3), 5)
-    - console.log('ok')
-  - Run: node temp_sanity_test.cjs → should print "ok"
-  - Remove the file after verification.
+**Server Components by default** (Next.js App Router):
+```typescript
+// ✅ Good - Server Component (default)
+export function ProductList({ products }: Props) {
+  return <div>{/* ... */}</div>
+}
 
-5. CI recommendations (to adopt later)
+// ✅ Use 'use client' only when needed
+'use client'
+import { useState } from 'react'
 
-- GitHub Actions workflow steps:
-  - Setup Node (v20), pnpm cache.
-  - pnpm install
-  - pnpm typecheck
-  - pnpm lint
-  - pnpm test:coverage
-  - pnpm build
+export function Counter() {
+  const [count, setCount] = useState(0)
+  return <button onClick={() => setCount(count + 1)}>{count}</button>
+}
+```
 
-If you deviate from these defaults (e.g., choose npm instead of pnpm, add Playwright for E2E), reflect the change in this document and the scripts in package.json.
+**Naming patterns**:
+```typescript
+// Event handlers: prefix with 'handle'
+const handleClick = () => { /* ... */ }
+const handleSubmit = async (e: FormEvent) => { /* ... */ }
 
-###### End of guidelines.md
+// Booleans: verb prefix
+const isLoading = false
+const hasError = true
+const canSubmit = form.isValid
 
-*NB: sample guidelines.md can be found at: https://github.com/JetBrains/junie-guidelines*
+// Custom hooks: prefix with 'use'
+function useAuth() { /* ... */ }
+function useLocalStorage(key: string) { /* ... */ }
+```
+
+**Performance optimization**:
+```typescript
+import { memo, useCallback, useMemo } from 'react'
+
+// Memoize expensive components
+export const ExpensiveList = memo(function ExpensiveList({ items }: Props) {
+  const sortedItems = useMemo(
+    () => items.sort((a, b) => a.value - b.value),
+    [items],
+  )
+
+  const handleItemClick = useCallback((id: string) => {
+    console.log('Clicked:', id)
+  }, [])
+
+  return <>{/* ... */}</>
+})
+```
+
+### Formatting
+
+```typescript
+// 2 spaces, single quotes, trailing commas
+const config = {
+  apiUrl: 'https://api.example.com',
+  timeout: 5000,
+  retries: 3,
+}
+
+// 80 character line limit
+const longString =
+  'This is a very long string that exceeds 80 characters ' +
+  'so we break it into multiple lines'
+
+// Strict equality
+if (value === 'active') { /* ✅ */ }
+if (value == 'active') { /* ❌ */ }
+```
+
+---
+
+## 5. State Management
+
+### Local State (Hooks)
+
+```typescript
+// Simple state
+const [isOpen, setIsOpen] = useState(false)
+
+// Complex state with useReducer
+type State = { count: number; step: number }
+type Action = { type: 'increment' } | { type: 'decrement' }
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'increment':
+      return { ...state, count: state.count + state.step }
+    case 'decrement':
+      return { ...state, count: state.count - state.step }
+  }
+}
+
+const [state, dispatch] = useReducer(reducer, { count: 0, step: 1 })
+```
+
+### Global State (Redux Toolkit)
+
+```typescript
+// store/slices/auth-slice.ts
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+
+interface AuthState {
+  user: User | null
+  isAuthenticated: boolean
+}
+
+const initialState: AuthState = {
+  user: null,
+  isAuthenticated: false,
+}
+
+const authSlice = createSlice({
+  name: 'auth',
+  initialState,
+  reducers: {
+    setUser: (state, action: PayloadAction<User>) => {
+      state.user = action.payload
+      state.isAuthenticated = true
+    },
+    logout: (state) => {
+      state.user = null
+      state.isAuthenticated = false
+    },
+  },
+})
+
+export const { setUser, logout } = authSlice.actions
+export default authSlice.reducer
+```
+
+**State normalization**:
+```typescript
+// ✅ Normalized state
+interface State {
+  users: {
+    byId: Record<string, User>
+    allIds: string[]
+  }
+}
+
+// ❌ Avoid deeply nested state
+interface State {
+  users: {
+    [id: string]: {
+      posts: {
+        [postId: string]: Post
+      }
+    }
+  }
+}
+```
+
+---
+
+## 6. Testing Guidelines
+
+### Setup
+
+**vitest.config.ts**:
+```typescript
+import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./tests/setup.ts'],
+    coverage: {
+      provider: 'c8',
+      reporter: ['text', 'json', 'html'],
+    },
+  },
+})
+```
+
+**tests/setup.ts**:
+```typescript
+import '@testing-library/jest-dom'
+```
+
+### Component Tests
+
+```typescript
+// components/counter.test.tsx
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { Counter } from './counter'
+
+describe('Counter', () => {
+  it('increments count when button clicked', async () => {
+    // Arrange
+    const user = userEvent.setup()
+    render(<Counter />)
+
+    // Act
+    const button = screen.getByRole('button', { name: /increment/i })
+    await user.click(button)
+
+    // Assert
+    expect(screen.getByText('Count: 1')).toBeInTheDocument()
+  })
+})
+```
+
+### Test Naming
+
+```typescript
+// *.test.ts or *.spec.ts alongside source files
+src/
+  components/
+    button.tsx
+    button.test.tsx  // ✅
+  lib/
+    format-date.ts
+    format-date.spec.ts  // ✅
+```
+
+---
+
+## 7. Security Best Practices
+
+### Input Sanitization
+
+```typescript
+import DOMPurify from 'dompurify'
+
+function sanitizeHtml(dirty: string): string {
+  return DOMPurify.sanitize(dirty)
+}
+
+// Usage
+<div dangerouslySetInnerHTML={{ __html: sanitizeHtml(userInput) }} />
+```
+
+### Environment Variables
+
+```bash
+# .env.local (never commit!)
+DATABASE_URL="postgresql://..."
+API_SECRET="secret123"
+
+# Public vars (exposed to browser)
+NEXT_PUBLIC_API_URL="https://api.example.com"
+```
+
+```typescript
+// Server-only
+const dbUrl = process.env.DATABASE_URL
+
+// Client-accessible
+const apiUrl = process.env.NEXT_PUBLIC_API_URL
+```
+
+### Authentication
+
+```typescript
+// middleware.ts - Route protection
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+
+export function middleware(request: NextRequest) {
+  const token = request.cookies.get('session-token')
+
+  if (!token && request.nextUrl.pathname.startsWith('/dashboard')) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+
+  return NextResponse.next()
+}
+```
+
+---
+
+## 8. Error Handling
+
+### Error Boundaries
+
+```typescript
+// app/error.tsx
+'use client'
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string }
+  reset: () => void
+}) {
+  return (
+    <div>
+      <h2>Something went wrong!</h2>
+      <button onClick={() => reset()}>Try again</button>
+    </div>
+  )
+}
+```
+
+### Form Validation
+
+```typescript
+import { z } from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+
+const schema = z.object({
+  email: z.string().email('Invalid email'),
+  password: z.string().min(8, 'Password must be 8+ characters'),
+})
+
+type FormData = z.infer<typeof schema>
+
+function LoginForm() {
+  const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
+    resolver: zodResolver(schema),
+  })
+
+  const onSubmit = (data: FormData) => {
+    // Handle form submission
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <input {...register('email')} />
+      {errors.email && <span>{errors.email.message}</span>}
+      {/* ... */}
+    </form>
+  )
+}
+```
+
+---
+
+## 9. Documentation
+
+**Use TSDoc for all public APIs**:
+
+```typescript
+/**
+ * Formats a date into a human-readable string.
+ *
+ * @param date - The date to format
+ * @param locale - The locale for formatting (default: 'en-US')
+ * @returns A formatted date string
+ *
+ * @example
+ * ```typescript
+ * formatDate(new Date(), 'en-US')
+ * // => "January 1, 2025"
+ * ```
+ */
+export function formatDate(date: Date, locale = 'en-US'): string {
+  return date.toLocaleDateString(locale, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+}
+```
+
+---
+
+## 10. CI/CD Pipeline
+
+**GitHub Actions workflow** (`.github/workflows/ci.yml`):
+
+```yaml
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - run: pnpm install
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test:coverage
+      - run: pnpm build
+```
+
+---
+
+## 11. Initialization Checklist
+
+When scaffolding the full application:
+
+- [ ] Run `pnpm dlx create-next-app@latest .`
+  - Select: TypeScript, App Router, ESLint, Tailwind CSS
+- [ ] Enable TypeScript strict mode in `tsconfig.json`
+- [ ] Install dependencies:
+  ```bash
+  pnpm add @reduxjs/toolkit react-redux zod react-hook-form @hookform/resolvers/zod dompurify
+  pnpm add -D @types/dompurify vitest @testing-library/react @testing-library/jest-dom jsdom c8
+  ```
+- [ ] Configure Vitest (`vitest.config.ts`)
+- [ ] Set up Redux store (`store/index.ts`)
+- [ ] Create folder structure (see section 2)
+- [ ] Configure ESLint and Prettier
+- [ ] Set up pre-commit hooks (lint-staged + husky)
+- [ ] Create `.env.local` (add to `.gitignore`)
+- [ ] Implement theme provider (light/dark mode)
+- [ ] Set up error boundaries
+- [ ] Configure path aliases in `tsconfig.json`
+
+---
+
+## 12. Additional Resources
+
+- **Detailed Standards**: See `.aiassistant/rules/` for comprehensive guidelines:
+  - `code-style.md` - Complete coding standards
+  - `testing.md` - Testing practices
+  - `security.md` - Security requirements
+  - `documentation.md` - Documentation standards
+  - `inclusive-design.md` - Accessibility guidelines
+
+- **Official Docs**:
+  - [Next.js Documentation](https://nextjs.org/docs)
+  - [React Documentation](https://react.dev)
+  - [Redux Toolkit](https://redux-toolkit.js.org)
+  - [Vitest](https://vitest.dev)
+
+- **Junie Guidelines**: [github.com/JetBrains/junie-guidelines](https://github.com/JetBrains/junie-guidelines)
+
+---
+
+**Last verified**: 2025-11-21
+**Verification**: Minimal environment test passed using Node.js built-in assert module
+
+_When deviating from these standards (e.g., switching to npm, adding Playwright), update this document accordingly._
