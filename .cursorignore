@@ -1,10 +1,6 @@
-.aiassistant
-.github
-.junie
-.aiignore
+.swc
 gitops
 manifests
 .dockerignore
 Dockerfile
-CLAUDE.md
 VERSION
