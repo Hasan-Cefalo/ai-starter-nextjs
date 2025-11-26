@@ -29,6 +29,17 @@ module.exports = {
           primary: 'var(--color-text-primary)',
           secondary: 'var(--color-text-secondary)',
         },
+        login: {
+          inputBg: '#f1f1f1',
+          inputBorder: '#777777',
+          buttonBg: 'rgba(197,195,201,0.46)',
+          placeholderText: 'rgba(5,5,12,0.46)',
+          buttonText: 'rgba(5,5,12,0.16)',
+          headingText: '#05050c',
+        },
+      },
+      borderRadius: {
+        login: '20px',
       },
     },
   },
